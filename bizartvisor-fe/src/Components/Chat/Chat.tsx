@@ -1,19 +1,19 @@
 import React, { useEffect, useRef } from "react";
-import "./Chat.scss";
+import "./Chat.scss"; // Importing styles
 import { IMessage } from "../../API/api";
-import botAvatar from "../../Images/bizart.png"; // Import the image
+import botAvatar from "../../Images/bizart.png"; // Bot avatar image
 import ReactMarkdown from "react-markdown";
 
 interface Props {
-  messages: IMessage[];
+  messages: IMessage[]; // Array of message objects
 }
 
 const Chats: React.FC<Props> = ({ messages }) => {
-  const dummyRef = useRef<HTMLDivElement>(null);
-  const bodyRef = useRef<HTMLDivElement>(null);
+  const dummyRef = useRef<HTMLDivElement>(null); // Ref for the dummy div used for auto-scrolling
+  const bodyRef = useRef<HTMLDivElement>(null); // Ref for the message container div
 
   useEffect(() => {
-    // Enable autoscroll to the latest message
+    // Auto-scroll to the latest message on update
     if (dummyRef.current) {
       dummyRef.current.scrollIntoView({ behavior: "smooth" });
     }
@@ -23,14 +23,15 @@ const Chats: React.FC<Props> = ({ messages }) => {
     <div className="message-container" ref={bodyRef}>
       {messages.map((chat, index) => (
         <div key={index} className={`message ${chat.sender}`}>
+          {/* Conditionally render bot avatar for bot messages */}
           {chat.sender === 'bot' && (
             <img src={botAvatar} alt="Bot Avatar" className="bot-avatar" />
           )}
-          {/* Use ReactMarkdown to render the message */}
+          {/* Render message text with markdown support */}
           <ReactMarkdown className="text">{chat.message}</ReactMarkdown>
         </div>
       ))}
-      <div ref={dummyRef}></div> {/* Dummy div for autoscroll */}
+      <div ref={dummyRef}></div> {/* Dummy div at the end for auto-scrolling */}
     </div>
   );
 };

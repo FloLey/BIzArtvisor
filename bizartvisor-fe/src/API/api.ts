@@ -1,6 +1,20 @@
 const BASE_URL = 'http://localhost:5000';
 
-// Function to fetch conversation history
+// Interfaces defining the structure of messages and threads
+export interface IMessage {
+  message: string;
+  sender: 'user' | 'bot';
+}
+
+export interface Thread {
+  session_id: string;
+  messages: IMessage[];
+}
+
+/**
+ * Fetches the conversation history from the backend.
+ * @returns A promise that resolves to an array of strings representing conversation histories.
+ */
 export const fetchConversationHistory = async (): Promise<string[]> => {
   try {
     const response = await fetch(`${BASE_URL}/get_conversation_history`);
@@ -15,27 +29,19 @@ export const fetchConversationHistory = async (): Promise<string[]> => {
   }
 };
 
-export interface Thread {
-  session_id: string;
-  messages: IMessage[];
-}
-
-export interface IMessage {
-  message: string;
-  sender: 'user' | 'bot';
-}
-
+/**
+ * Changes the active conversation thread to the one specified by the given ID.
+ * @param id The ID of the conversation thread to switch to.
+ * @returns A promise that resolves to the new Thread object.
+ */
 export const changeConversationThread = async (id: string): Promise<Thread> => {
   try {
-    // Encode the ID for safe inclusion in the URL query string
     const encodedId = encodeURIComponent(id);
-    // Adjust the fetch URL to use a query parameter for the ID
     const response = await fetch(`${BASE_URL}/change_message_thread?id=${encodedId}`);
     if (!response.ok) {
       throw new Error('Network response was not ok');
     }
     const data = await response.json();
-    // Transform the data to fit the Thread interface
     const thread: Thread = {
       session_id: data.session_id,
       messages: data.messages.map((msg: { content: string; type: string }) => ({
@@ -43,7 +49,6 @@ export const changeConversationThread = async (id: string): Promise<Thread> => {
         sender: msg.type === 'human' ? 'user' : 'bot'
       }))
     };
-
     return thread;
   } catch (error) {
     console.error('Error changing thread:', error);
@@ -51,14 +56,17 @@ export const changeConversationThread = async (id: string): Promise<Thread> => {
   }
 };
 
-
+/**
+ * Streams responses for a given input and session ID from the backend.
+ * @param input The user's input message.
+ * @param session_id The current session ID.
+ * @returns An object containing the new session ID and a generator function for streaming the response content.
+ */
 export async function streamResponsesWithSession(input: string, session_id: string) {
   try {
     const response = await fetch(`${BASE_URL}/stream_response`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ input, session_id }),
     });
 
@@ -66,27 +74,19 @@ export async function streamResponsesWithSession(input: string, session_id: stri
       throw new Error('Network response was not ok');
     }
 
-    if (!response.body) {
-      throw new Error("No response body");
-    }
-
     const sessionIdFromHeader = response.headers.get('X-Session-ID');
-    console.log(response)
+    console.log(response);
 
     return { 
       sessionIdFromHeader, 
       contentStream: (async function* () {
-        if (!response.body) {
-          throw new Error("No response body");
-        }
+        if (!response.body) throw new Error("No response body");
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
-
         while (true) {
           const { value, done } = await reader.read();
           if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          yield chunk;
+          yield decoder.decode(value, { stream: true });
         }
       })()
     };
