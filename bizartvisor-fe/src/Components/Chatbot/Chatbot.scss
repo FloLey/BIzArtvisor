@@ -1,0 +1,47 @@
+@mixin form-component-style {
+    border-radius: 10px;
+    padding: 0.5em;
+    font-size: 1em;
+}
+
+.chat-container {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 0.5px solid #d8d8d8;
+    padding: 2em;
+    border-radius: 10px;
+
+    .form-container {
+        display: flex;
+        justify-content: space-between;
+
+        textarea {
+            width: 92%;
+            max-height: 50vh; // or 50vh, depending on your design needs
+            overflow-y: auto; // Ensure scrollbar appears when content exceeds max-height
+            resize: none; // Optional: Prevent manual resizing
+            border-style: none;
+            border: 0.5px solid #393e46;
+            @include form-component-style;
+
+            &:focus {
+                outline: none;
+            }
+        }
+
+        button {
+            background: #e5dfdf;
+            color: #393e46;
+            border-style: none;
+            @include form-component-style;
+
+            &:hover {
+                opacity: 0.8;
+                cursor: pointer;
+            }
+        }
+    }
+}
+

@@ -1,0 +1,20 @@
+
+.container {
+  display: flex;
+  gap: 20px;
+  height: 100%; /* Use full height of its parent */
+}
+
+.column, .middle-column {
+  padding: 20px;
+  display: flex; /* Add flex display to columns */
+  flex-direction: column; /* Stack children vertically */
+}
+
+.column {
+  flex: 1;
+}
+
+.middle-column {
+  flex: 4;
+}

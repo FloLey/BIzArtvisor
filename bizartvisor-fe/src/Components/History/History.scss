@@ -1,0 +1,39 @@
+.historyList {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+
+  li {
+    padding: 10px;
+    margin: 5px 0;
+    background: #f8e7dc;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:nth-child(odd) {
+      background: #f7f7f7; // A slightly different shade for alternating effect
+    }
+
+    &:hover {
+      background-color: #e0e0e0; // Darker shade for hover
+    }
+
+    &.activeHistoryItem { // Highlight the active session
+      border: 2px solid rgb(234, 206, 153); // Style the border as desired
+    }
+  }
+}
+
+.newChatButton {
+  padding: 10px 20px;
+  margin-bottom: 20px; // Create some space between the button and the list
+  background-color: #3b3a32; // A pleasant green
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #282722; // Slightly darker green on hover
+  }
+}

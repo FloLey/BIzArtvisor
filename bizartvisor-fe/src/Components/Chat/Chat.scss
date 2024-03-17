@@ -1,0 +1,50 @@
+$standard-padding: 0.5em;
+$bubble-border-radius: 17px;
+
+@mixin bot {
+  background: #393e46;
+  color: #f7f7f7;
+  align-self: flex-start;
+}
+
+@mixin user {
+  background: #e5dfdf;
+  color: #393e46;
+  align-self: flex-end;
+}
+
+.message-container {
+  display: flex;
+  flex-direction: column;
+  height: inherit;
+  overflow-y: scroll;
+  margin-bottom: 2em;
+}
+
+.message {
+  display: flex;
+  align-items: center;
+  margin: 0.5em 0; // Space between messages
+  &.bot, &.user {
+    padding: $standard-padding;
+    border-radius: $bubble-border-radius;
+    overflow-wrap: break-word;
+  }
+  &.bot {
+    justify-content: flex-end; // Moves bot messages to the right
+    @include bot;
+  }
+  &.user {
+    @include user;
+  }
+  .bot-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    margin-right: 10px; // Adjust based on direction
+    flex-shrink: 0;
+  }
+  .text {
+    flex: 1;
+  }
+}
