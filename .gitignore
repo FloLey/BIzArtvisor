@@ -3,3 +3,4 @@ bizartvisor-fe/node_modules/*
 .idea
 server/__pycache__
 server/__pycache__/*
+.env

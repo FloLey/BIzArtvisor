@@ -1,5 +1,4 @@
-const BASE_URL = 'http://localhost:5000';
-
+const BASE_URL = process.env.REACT_APP_BACKEND_URL || "http://127.0.0.1:5000"
 // Interfaces defining the structure of messages and threads
 export interface IMessage {
   message: string;

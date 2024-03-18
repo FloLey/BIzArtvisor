@@ -1,0 +1,30 @@
+services:
+  server:
+    build: ./server
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=redis
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  bizartvisor-fe:
+    build: ./bizartvisor-fe
+    ports:
+      - "3000:3000"
+    depends_on:
+      - server
+
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+    volumes:
+      - redis_data:/data
+
+volumes:
+    redis_data:
+

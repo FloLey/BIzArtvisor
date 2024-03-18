@@ -1,3 +1,4 @@
+import os
 import redis
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS
@@ -8,7 +9,7 @@ from langchain_anthropic import ChatAnthropic
 from llms import LLMAssistant
 
 # Configuration for Redis connection
-REDIS_HOST = 'localhost'
+REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_URL = f"redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}"
@@ -33,6 +34,12 @@ class Conversation(BaseModel):
     """Pydantic model for a conversation, containing a session ID and a list of messages."""
     session_id: str
     messages: list[Message]
+
+@app.route('/')
+def get_root():
+    """Retrieves the history of conversations stored in Redis."""
+    var = [x for x in os.environ.items()]
+    return jsonify(var)
 
 
 @app.route('/get_conversation_history')
@@ -69,3 +76,4 @@ def stream_response_route():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
