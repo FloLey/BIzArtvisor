@@ -8,9 +8,10 @@ interface ChatbotProps {
   addMessage: (newMessage: IMessage) => void;
   updateBotMessage: (newMessage: IMessage) => void;
   updateSessionId: (sessionId: string) => void;
+  model: string;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage, updateSessionId }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage, updateSessionId, model }) => {
   const [userResponse, setUserResponse] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -33,7 +34,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
     addMessage(botMessage);
 
     let fullResponse = "";
-    const { sessionIdFromHeader, contentStream } = await streamResponsesWithSession(input, thread.session_id);
+    const { sessionIdFromHeader, contentStream } = await streamResponsesWithSession(input, thread.session_id, model);
   
     for await (const chunk of contentStream) {
       fullResponse += chunk;

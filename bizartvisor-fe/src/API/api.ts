@@ -61,12 +61,12 @@ export const changeConversationThread = async (id: string): Promise<Thread> => {
  * @param session_id The current session ID.
  * @returns An object containing the new session ID and a generator function for streaming the response content.
  */
-export async function streamResponsesWithSession(input: string, session_id: string) {
+export async function streamResponsesWithSession(input: string, session_id: string, model_name: string) {
   try {
     const response = await fetch(`${BASE_URL}/stream_response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, session_id }),
+      body: JSON.stringify({ input, session_id, model_name }),
     });
 
     if (!response.ok) {
@@ -94,3 +94,22 @@ export async function streamResponsesWithSession(input: string, session_id: stri
     throw error;
   }
 }
+
+
+/**
+ * Fetches the available LLM model names from the backend.
+ * @returns A promise that resolves to an array of strings representing the model names.
+ */
+export const fetchModelNames = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/get_llm_names`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data: string[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching model names:', error);
+    throw error;
+  }
+};

@@ -3,6 +3,7 @@ import './App.css';
 import Chatbot from './Components/Chatbot/Chatbot';
 import History from './Components/History/History';
 import { IMessage, Thread } from './API/api';
+import Settings from './Components/Settings/Settings';
 
 function App() {
   // State to manage the current chat thread, including the session ID and messages
@@ -10,6 +11,8 @@ function App() {
     session_id: "new_session_id",
     messages: []
   });
+  const [selectedModel, setSelectedModel] = useState('');
+
 
   // Updates the entire thread (session ID and messages) with a new thread
   const updateThread = (newThread: Thread) => {
@@ -56,12 +59,10 @@ function App() {
           addMessage={addMessageToThread} 
           updateBotMessage={updateBotMessage} 
           updateSessionId={updateSessionId}
+          model={selectedModel}
         />
       </div>
-      <div className="column">
-        {/* Placeholder for future settings or additional components */}
-        Settings
-      </div>
+      <Settings selectedModel={selectedModel} setSelectedModel={setSelectedModel} /> {/* Update Settings usage */}
     </div>
   );
 }

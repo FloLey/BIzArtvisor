@@ -1,0 +1,26 @@
+.settings-container {
+  margin: 20px 20px 0px 20px; // Adjust spacing to fit your layout
+  select {
+    margin-top: 5px;
+    width: 100%; // Ensures the select fills its container
+    padding: 10px; // Matches the form-component-style mixin
+    background-color: #f8f8f8; // A light background to match the theme
+    border: 1px solid #d8d8d8; // Subtle border matching the chat-container
+    border-radius: 5px; // Slight rounding to match other elements
+    font-size: 1em; // Ensure text is easily readable
+    cursor: pointer; // Indicates this is an interactive element
+
+    &:hover {
+      background-color: #e8e8e8; // Slightly darker on hover for feedback
+    }
+
+    &:focus {
+      outline: none; // Removes the default focus outline
+      box-shadow: 0 0 0 2px rgba(234, 206, 153, 0.5); // Custom focus indicator to match the activeHistoryItem style
+    }
+
+    option {
+      padding: 10px; // Padding for individual options, enhancing readability
+    }
+  }
+}
