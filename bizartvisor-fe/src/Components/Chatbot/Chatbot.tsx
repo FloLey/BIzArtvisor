@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./Chatbot.scss";
 import Chats from "../Chat/Chat";
-import { IMessage, Thread, streamResponsesWithSession } from "../../API/api";
+import { IMessage, Thread, streamResponsesWithSession, uploadFile } from "../../API/api";
 
 interface ChatbotProps {
   thread: Thread;
@@ -72,6 +72,26 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
     }
   };
 
+  // Function to trigger file input
+  const triggerFileInput = () => {
+    document.getElementById('fileInput')?.click();
+  };
+
+  // Function to handle file upload
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    if (!file) return;
+
+    try {
+      const result = await uploadFile(file);
+      console.log('Upload successful:', result);
+      // Here, you might update your chat or UI to reflect the file upload success or content
+    } catch (error) {
+      console.error('Error uploading file:', error);
+    }
+  };
+  
+
   return (
     <div className="chat-container">
       <Chats messages={thread.messages} />
@@ -85,6 +105,15 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
         ></textarea>
         <button type="submit">
           <i className="far fa-paper-plane"> Send</i>
+        </button>
+        <input
+          type="file"
+          id="fileInput"
+          style={{ display: 'none' }}
+          onChange={handleFileUpload}
+        />
+        <button type="button" onClick={triggerFileInput}>
+          <i className="fas fa-upload"> Upload</i>
         </button>
       </form>
     </div>

@@ -113,3 +113,26 @@ export const fetchModelNames = async (): Promise<string[]> => {
     throw error;
   }
 };
+
+
+
+/**
+ * Uploads a file to the server.
+ * @param file The file to be uploaded.
+ * @returns A promise that resolves to the server's response.
+ */
+export const uploadFile = async (file: File): Promise<any> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await fetch(`${BASE_URL}/upload_file`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    throw new Error('Upload failed');
+  }
+
+  return await response.json();
+};
