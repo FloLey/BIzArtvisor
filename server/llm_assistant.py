@@ -5,6 +5,9 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_community.chat_message_histories import RedisChatMessageHistory
 import langchain_anthropic.chat_models as cm
+
+from redis_db import RedisManager
+
 os.environ['LANGCHAIN_TRACING_V2'] = 'true'
 
 from llms import model_registry
@@ -23,7 +26,7 @@ def _init_chat_prompt():
     """Initializes the chat prompt template with a system message and placeholders for message history and user
     input."""
     return ChatPromptTemplate.from_messages([
-        ("system", "You're an helpful AI assistant. Respond in 20 words or fewer"),
+        ("system", "You're an helpful AI assistant. Respond as best as you can to the asked questions."),
         MessagesPlaceholder(variable_name="history"),
         ("human", "{input}"),
     ])
@@ -32,9 +35,9 @@ def _init_chat_prompt():
 class LLMAssistant:
     """A language model assistant class that handles interaction with users through a chat interface."""
 
-    def __init__(self, redis_url: str, model_name: str, session_id: Optional[str]):
+    def __init__(self, redis_manager: RedisManager, model_name: str, session_id: Optional[str]):
         """Initializes the assistant with Redis connection, model, and session identifiers."""
-        self.redis_url = redis_url
+        self.redis_manager = redis_manager
         self.model_name = model_name
         self.session_id = session_id
         self.chat_prompt = _init_chat_prompt()
@@ -43,7 +46,7 @@ class LLMAssistant:
         """Retrieves the message history for a given session from Redis."""
         if session_id is None:
             session_id = self.session_id
-        return RedisChatMessageHistory(session_id, url=self.redis_url)
+        return self.redis_manager.get_chat_message_history(session_id)
 
     def stream_response(self, input_text: str):
         """Streams responses from the language model for the given input text, utilizing the chat history."""
