@@ -12,11 +12,15 @@ function App() {
     messages: []
   });
   const [selectedModel, setSelectedModel] = useState('');
-
+  const [useRAG, setUseRAG] = useState<boolean>(false);
 
   // Updates the entire thread (session ID and messages) with a new thread
   const updateThread = (newThread: Thread) => {
     setThread(newThread);
+  };
+
+  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setUseRAG(event.target.checked);
   };
 
   // Updates the session ID of the current thread
@@ -60,9 +64,12 @@ function App() {
           updateBotMessage={updateBotMessage} 
           updateSessionId={updateSessionId}
           model={selectedModel}
+          useRag={useRAG}
         />
-      </div>
-      <Settings selectedModel={selectedModel} setSelectedModel={setSelectedModel} /> {/* Update Settings usage */}
+      </div >
+        <div className="column">
+        <Settings selectedModel={selectedModel} setSelectedModel={setSelectedModel} useRAG={useRAG} handleCheckboxChange={handleCheckboxChange}/> {/* Update Settings usage */}
+        </div>
     </div>
   );
 }

@@ -22,7 +22,6 @@ $bubble-border-radius: 17px;
 }
 
 .message {
-  display: flex;
   align-items: center;
   margin: 0.5em 0; // Space between messages
   &.bot, &.user {

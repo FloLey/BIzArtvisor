@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import "./Chatbot.scss";
 import Chats from "../Chat/Chat";
-import { IMessage, Thread, streamResponsesWithSession, uploadFile } from "../../API/api";
+import { IMessage, Thread, streamResponsesWithSession} from "../../API/api";
 
 interface ChatbotProps {
   thread: Thread;
@@ -9,11 +9,13 @@ interface ChatbotProps {
   updateBotMessage: (newMessage: IMessage) => void;
   updateSessionId: (sessionId: string) => void;
   model: string;
+  useRag: boolean
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage, updateSessionId, model }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage, updateSessionId, model, useRag }) => {
   const [userResponse, setUserResponse] = useState<string>("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setUserResponse(e.target.value);
@@ -34,7 +36,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
     addMessage(botMessage);
 
     let fullResponse = "";
-    const { sessionIdFromHeader, contentStream } = await streamResponsesWithSession(input, thread.session_id, model);
+    const { sessionIdFromHeader, contentStream } = await streamResponsesWithSession(input, thread.session_id, model, useRag);
   
     for await (const chunk of contentStream) {
       fullResponse += chunk;
@@ -72,25 +74,8 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
     }
   };
 
-  // Function to trigger file input
-  const triggerFileInput = () => {
-    document.getElementById('fileInput')?.click();
-  };
 
-  // Function to handle file upload
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files ? event.target.files[0] : null;
-    if (!file) return;
 
-    try {
-      const result = await uploadFile(file);
-      console.log('Upload successful:', result);
-      // Here, you might update your chat or UI to reflect the file upload success or content
-    } catch (error) {
-      console.error('Error uploading file:', error);
-    }
-  };
-  
 
   return (
     <div className="chat-container">
@@ -105,15 +90,6 @@ const Chatbot: React.FC<ChatbotProps> = ({ thread, addMessage, updateBotMessage,
         ></textarea>
         <button type="submit">
           <i className="far fa-paper-plane"> Send</i>
-        </button>
-        <input
-          type="file"
-          id="fileInput"
-          style={{ display: 'none' }}
-          onChange={handleFileUpload}
-        />
-        <button type="button" onClick={triggerFileInput}>
-          <i className="fas fa-upload"> Upload</i>
         </button>
       </form>
     </div>

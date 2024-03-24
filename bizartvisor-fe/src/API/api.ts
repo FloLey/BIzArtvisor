@@ -61,12 +61,12 @@ export const changeConversationThread = async (id: string): Promise<Thread> => {
  * @param session_id The current session ID.
  * @returns An object containing the new session ID and a generator function for streaming the response content.
  */
-export async function streamResponsesWithSession(input: string, session_id: string, model_name: string) {
+export async function streamResponsesWithSession(input: string, session_id: string, model_name: string, useRAG: boolean) {
   try {
     const response = await fetch(`${BASE_URL}/stream_response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, session_id, model_name }),
+      body: JSON.stringify({ input, session_id, model_name, useRAG }),
     });
 
     if (!response.ok) {
@@ -121,18 +121,45 @@ export const fetchModelNames = async (): Promise<string[]> => {
  * @param file The file to be uploaded.
  * @returns A promise that resolves to the server's response.
  */
-export const uploadFile = async (file: File): Promise<any> => {
-  const formData = new FormData();
-  formData.append('file', file);
+// Assuming this is in your API service file (e.g., api.ts)
 
-  const response = await fetch(`${BASE_URL}/upload_file`, {
-    method: 'POST',
-    body: formData,
-  });
+// Update the function to accept FormData
+export const uploadFile = async (formData: FormData): Promise<any> => {
+  try {
+    const response = await fetch(`${BASE_URL}/upload_file`, {
+      method: 'POST',
+      body: formData,
+      // Note: When using FormData, you should not set the Content-Type header manually
+      // as the browser will set it for you, including the boundary parameter.
+    });
 
-  if (!response.ok) {
-    throw new Error('Upload failed');
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error uploading file:', error);
+    throw error;
   }
+};
 
-  return await response.json();
+
+
+/**
+ * Fetches the available Text Splitter names from the backend.
+ * @returns A promise that resolves to an array of strings representing the text splitter names.
+ */
+export const fetchTextSplittersNames = async (): Promise<string[]> => {
+  try {
+    const response = await fetch(`${BASE_URL}/get_text_splitters`);
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+    const data: string[] = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching text splitters names:', error);
+    throw error;
+  }
 };

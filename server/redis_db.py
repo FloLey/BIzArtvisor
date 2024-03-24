@@ -6,6 +6,8 @@ from langchain_community.chat_message_histories import RedisChatMessageHistory
 class RedisManager:
     def __init__(self, redis_url: str):
         self.url = redis_url
+        print("----------------redis")
+        print(redis_url)
         self.redis = redis.from_url(redis_url)
 
     def get_conversation_history(self) -> List[str]:

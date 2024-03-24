@@ -1,26 +1,176 @@
 .settings-container {
-  margin: 20px 20px 0px 20px; // Adjust spacing to fit your layout
-  select {
-    margin-top: 5px;
-    width: 100%; // Ensures the select fills its container
-    padding: 10px; // Matches the form-component-style mixin
-    background-color: #f8f8f8; // A light background to match the theme
-    border: 1px solid #d8d8d8; // Subtle border matching the chat-container
-    border-radius: 5px; // Slight rounding to match other elements
-    font-size: 1em; // Ensure text is easily readable
-    cursor: pointer; // Indicates this is an interactive element
+  margin: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .section {
+    background-color: #f7f7f7;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+    .section-header {
+      font-size: 1.2em;
+      margin-bottom: 10px;
+      color: #3b3a32;
+    }
+
+    .section-content {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      input, select, button {
+        width: 100%;
+        padding: 12px;
+        margin: 0;
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+        font-size: 1em;
+        background-color: white;
+        box-sizing: border-box;
+      }
+      .file-input-label {
+        display: block; // Make the label block to fill width
+        padding: 12px;
+        margin: 0; // Reset margin to align with other inputs
+        border: 1px solid #d8d8d8;
+        border-radius: 4px;
+        background-color: white;
+        cursor: pointer;
+        text-align: left; // Align the text to the left
+        position: relative;
+        
+        &:hover {
+          background-color: #e0e0e0; // Change background on hover
+        }
+  
+        .file-input-text {
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
+          display: inline-block;
+          vertical-align: middle;
+          width: 90%; // Leave space for the 'Choose File' text
+        }
+  
+        .choose-file-button {
+          display: inline-block; // Make it inline with the text
+          text-align: center;
+          vertical-align: middle;
+          background-color: #eee; // Differentiate it slightly from input
+          padding: 0 12px;
+          pointer-events: none; // The button is purely visual
+        }
+      }
+      .additional-context-input {
+        height: calc(2 * 40px); /* Adjust based on your base height */
+        resize: vertical; /* Allow only vertical resizing */
+        overflow-y: auto; /* Show scrollbar when content overflows */
+        padding: 4px 12px; /* Top and bottom padding 4px, left and right padding 12px */
+        white-space: pre-wrap; /* Allows text to wrap */
+        overflow-wrap: break-word; /* Allows words to break and wrap to the next line */
+        line-height: 1.4; /* Adjust line-height for better readability, if necessary */
+        /* Remove vertical-align if it was applied; it doesn't affect the content of textarea */
+      }
+      
+      // Make sure your other inputs have a consistent height if needed
+      .section-content input:not(.additional-context-input),
+      .section-content select, 
+      .section-content button {
+        height: 40px; // Adjust as needed to match your design
+      }
+      .rag-checkbox {
+        display: flex;
+        align-items: center; // ensures vertical alignment
+        gap: 8px; // provides some space between the checkbox and label
+      
+        input[type="checkbox"] {
+          margin: 0; // reset default margin
+          // Correct for any browser-specific alignment issues
+          position: relative;
+          top: -2px; // adjust this value if the checkbox still seems misaligned
+          width: 16px; // you can set a fixed width
+          height: 16px; // and height for the checkbox
+        }
+      
+        label {
+          margin: 0;
+          display: inline-block; // ensures label is properly displayed inline with the checkbox
+          // Adjust padding if needed
+          padding-left: 2px;
+        }
+      }
+  
+      input[type='file'] {
+        width: 100%;
+        height: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+    }
+  }
+
+  button, .file-input-label {
+    padding: 12px;
+    border: 1px solid #d8d8d8;
+    border-radius: 4px;
+    font-size: 1em;
 
     &:hover {
-      background-color: #e8e8e8; // Slightly darker on hover for feedback
+      background-color: #282722;
     }
 
-    &:focus {
-      outline: none; // Removes the default focus outline
-      box-shadow: 0 0 0 2px rgba(234, 206, 153, 0.5); // Custom focus indicator to match the activeHistoryItem style
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  .upload-btn {
+    margin-top: 10px;
+    padding: 12px;
+    width: calc(100% - 24px); // Match the file input label width
+    border: none;
+    border-radius: 4px;
+    background-color: #3b3a32;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+    
+    &:hover {
+      background-color: #282722;
+    }
+  
+    &:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1.1em;
+    z-index: 9999;
+    transition: opacity 0.3s ease-in-out;
+
+    &.success {
+      background-color: #4caf50;
     }
 
-    option {
-      padding: 10px; // Padding for individual options, enhancing readability
+    &.error {
+      background-color: #f44336;
     }
   }
 }
+
+

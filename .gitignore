@@ -4,3 +4,5 @@ bizartvisor-fe/node_modules/*
 server/__pycache__
 server/__pycache__/*
 .env
+server/qdrant_storage/*
+server/qdrant_storage

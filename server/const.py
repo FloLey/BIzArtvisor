@@ -30,3 +30,9 @@ model_registry = {
     LlmNames.OPENAI_GPT4_TURBO.value: Llms.OPENAI_GPT4_TURBO.value,
     LlmNames.OPENAI_GPT3_5_TURBO.value: Llms.OPENAI_GPT3_5.value,
 }
+
+
+class TextSplitters(Enum):
+    RECURSIVE_CHARACTER = "recursive_character"
+    SEMANTIC_CHUNKER = "semantic_chunker"
+    NONE = "None"
