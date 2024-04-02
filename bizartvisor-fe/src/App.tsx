@@ -13,14 +13,19 @@ function App() {
   });
   const [selectedModel, setSelectedModel] = useState('');
   const [useRAG, setUseRAG] = useState<boolean>(false);
+  const [useNewsTool, setuseNewsTool] = useState<boolean>(false);
 
   // Updates the entire thread (session ID and messages) with a new thread
   const updateThread = (newThread: Thread) => {
     setThread(newThread);
   };
 
-  const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRagCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
     setUseRAG(event.target.checked);
+  };
+
+  const handleNewsToolCheckBox = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setuseNewsTool(event.target.checked);
   };
 
   // Updates the session ID of the current thread
@@ -65,10 +70,19 @@ function App() {
           updateSessionId={updateSessionId}
           model={selectedModel}
           useRag={useRAG}
+          useNewsTool={useNewsTool}
         />
       </div >
         <div className="column">
-        <Settings selectedModel={selectedModel} setSelectedModel={setSelectedModel} useRAG={useRAG} handleCheckboxChange={handleCheckboxChange}/> {/* Update Settings usage */}
+        <Settings 
+        selectedModel={selectedModel}
+        setSelectedModel={setSelectedModel}
+        useRAG={useRAG} 
+        handleRagCheckbox={handleRagCheckbox}
+        useNewsTool={useNewsTool} 
+        handleNewsToolCheckBox={handleNewsToolCheckBox}
+        />
+         {/* Update Settings usage */}
         </div>
     </div>
   );

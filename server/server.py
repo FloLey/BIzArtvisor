@@ -6,9 +6,10 @@ from flask_cors import CORS
 from pydantic import BaseModel
 from datetime import datetime
 
+from knowledge.qdrant import QdrantManager, QdrantRetriever
+from knowledge.web_crawler import WebCrawler
 from llm_assistant import LLMAssistant
 from const import LlmNames, TextSplitters
-from qdrant import QdrantManager, QdrantRetriever
 from redis_db import RedisManager
 
 ALLOWED_EXTENSIONS = {'txt'}
@@ -23,7 +24,6 @@ QDRANT_HOST = os.getenv('QDRANT_HOST', 'localhost')
 QDRANT_PORT = 6333
 QDRANT_URL = f"http://{QDRANT_HOST}:{QDRANT_PORT}"
 
-
 # Initialize the Flask application and enable Cross-Origin Resource Sharing (CORS)
 app = Flask(__name__)
 CORS(app, expose_headers=["X-Session-ID"])
@@ -36,7 +36,6 @@ qdrant_retriever = QdrantRetriever(collection_name="stored_documents", qdrant_ur
 
 # Initialize the Language Model Assistant with a model, Redis URL, and a default session ID
 llm_assistant = LLMAssistant(redis_manager=redis_manager, model_name=LlmNames.CLAUDE_3_HAIKU.value, session_id=None)
-
 
 
 class Message(BaseModel):
@@ -87,6 +86,7 @@ def stream_response():
     session_id = request.json.get('session_id', '')
     model_name = request.json.get('model_name', '')
     use_rag = request.json.get('useRAG', False)
+    use_news_tool = request.json.get('useNewsTool', False)
     app.logger.info(model_name)
 
     if llm_assistant.model_name != model_name:
@@ -95,7 +95,12 @@ def stream_response():
     if session_id == "new_session_id":
         llm_assistant.set_session_id(datetime.now().strftime("%m/%d/%Y-%H:%M:%S"))
 
-    response = Response(llm_assistant.stream_response(input_data, qdrant_retriever, use_rag=use_rag), content_type='text/plain')
+    if not use_news_tool:
+        response = Response(llm_assistant.stream_response(input_data, qdrant_retriever, use_rag=use_rag),
+                        content_type='text/plain')
+    else:
+        response = Response(llm_assistant.stream_response_agent(input_data, qdrant_retriever, use_rag=use_rag),
+                        content_type='text/plain')
     response.headers['X-Session-ID'] = llm_assistant.session_id
     return response
 
@@ -106,14 +111,48 @@ def get_llm_names():
     llm_names = [model.value for model in LlmNames]
     return jsonify(llm_names)
 
+
 @app.route('/get_text_splitters')
 def get_text_splitters_names():
     """Returns a list of all available LLM names."""
     splitters = [model.value for model in TextSplitters]
     return jsonify(splitters)
 
+
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/upload_website', methods=['POST'])
+def upload_website():
+    website_url = request.form.get('website_url')
+    depth = int(request.form.get('depth', 2))
+    max_links = int(request.form.get('max_links', 50))
+    context = request.form.get('context', None)
+    splitter = request.form.get('splitter', None)
+    splitter_args_raw = request.form.get('splitter_args', None)
+    splitter_args = {}
+
+    if splitter_args_raw:
+        try:
+            splitter_args = json.loads(splitter_args_raw)
+        except json.JSONDecodeError:
+            return jsonify({'error': 'Invalid splitter_args format, must be a valid JSON string'}), 400
+
+    crawler = WebCrawler(max_links=max_links)
+    visited_urls = {}
+    crawled_pages_count = crawler.crawl(website_url, depth, visited=visited_urls)
+
+    try:
+        for url, content in visited_urls.items():
+            qdrant_manager.process_content(content, url, context=context, splitter=splitter,
+                                           splitter_args=splitter_args)
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+    return jsonify({
+        'message': f"{crawled_pages_count} pages were added for website {website_url}.",
+    }), 200
 
 
 @app.route('/upload_file', methods=['POST'])
@@ -140,11 +179,13 @@ def upload_file():
                 return jsonify({'error': 'Invalid splitter_args format, must be a valid JSON string'}), 400
 
         # Pass context, splitter, and splitter_args to process_content
-        qdrant_manager.process_content(contents, source, context=context, splitter=splitter, splitter_args=splitter_args)
+        qdrant_manager.process_content(contents, source, context=context, splitter=splitter,
+                                       splitter_args=splitter_args)
 
         return jsonify({'message': 'File content processed and vectors stored'}), 200
     else:
         return jsonify({'error': 'File type not allowed'}), 400
+
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -28,11 +28,12 @@ const MarkdownWithLinks: React.FC<MarkdownWithLinksProps> = ({ text }) => {
         {props.children}
       </a>
     ),
-    // Adjusting code component to handle inline code vs. block code
     code({ node, className, children, ...props }) {
+      // This regex matches the language name in the class attribute
       const match = /language-(\w+)/.exec(className || '');
       return match ? (
         // SyntaxHighlighter for language-specific code blocks
+        // 'match[1]' contains the detected language (e.g., js, ts, python)
         <SyntaxHighlighter style={oneLight} language={match[1]} PreTag="div">
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>

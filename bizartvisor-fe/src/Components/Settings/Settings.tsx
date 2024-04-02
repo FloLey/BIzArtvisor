@@ -9,10 +9,12 @@ interface SettingsProps {
   selectedModel: string;
   setSelectedModel: (model: string) => void;
   useRAG: boolean
-  handleCheckboxChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleRagCheckbox: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  useNewsTool: boolean
+  handleNewsToolCheckBox: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const Settings: React.FC<SettingsProps> = ({ selectedModel, setSelectedModel, useRAG, handleCheckboxChange }) => {
+const Settings: React.FC<SettingsProps> = ({ selectedModel, setSelectedModel, useRAG, handleRagCheckbox, useNewsTool, handleNewsToolCheckBox }) => {
   const [models, setModels] = useState<string[]>([]);
   const [successMessage, setSuccessMessage] = useState<string>('');
   const [errorMessage, setErrorMessage] = useState<string>('');
@@ -65,7 +67,9 @@ const Settings: React.FC<SettingsProps> = ({ selectedModel, setSelectedModel, us
         models={models}
         onModelChange={setSelectedModel}
         useRAG={useRAG}
-        handleCheckboxChange={handleCheckboxChange}
+        handleRagCheckbox={handleRagCheckbox}
+        useNewsTool={useNewsTool}
+        handleNewsToolCheckBox={handleNewsToolCheckBox}
       />
       <KnowledgeAddition
         onUploadSuccess={handleUploadSuccess}

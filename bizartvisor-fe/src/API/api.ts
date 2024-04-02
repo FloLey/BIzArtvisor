@@ -61,12 +61,12 @@ export const changeConversationThread = async (id: string): Promise<Thread> => {
  * @param session_id The current session ID.
  * @returns An object containing the new session ID and a generator function for streaming the response content.
  */
-export async function streamResponsesWithSession(input: string, session_id: string, model_name: string, useRAG: boolean) {
+export async function streamResponsesWithSession(input: string, session_id: string, model_name: string, useRAG: boolean, useNewsTool: boolean) {
   try {
     const response = await fetch(`${BASE_URL}/stream_response`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input, session_id, model_name, useRAG }),
+      body: JSON.stringify({ input, session_id, model_name, useRAG, useNewsTool }),
     });
 
     if (!response.ok) {
@@ -74,7 +74,6 @@ export async function streamResponsesWithSession(input: string, session_id: stri
     }
 
     const sessionIdFromHeader = response.headers.get('X-Session-ID');
-    console.log(response);
 
     return { 
       sessionIdFromHeader, 
@@ -129,8 +128,6 @@ export const uploadFile = async (formData: FormData): Promise<any> => {
     const response = await fetch(`${BASE_URL}/upload_file`, {
       method: 'POST',
       body: formData,
-      // Note: When using FormData, you should not set the Content-Type header manually
-      // as the browser will set it for you, including the boundary parameter.
     });
 
     if (!response.ok) {
@@ -144,6 +141,30 @@ export const uploadFile = async (formData: FormData): Promise<any> => {
   }
 };
 
+
+/**
+ * Uploads website data for crawling and processing using FormData.
+ * @param formData The FormData object containing website crawling parameters.
+ * @returns A promise that resolves to the server's response.
+ */
+export const uploadWebsite = async (formData: FormData): Promise<any> => {
+  console.log(formData)
+  try {
+    const response = await fetch(`${BASE_URL}/upload_website`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (!response.ok) {
+      throw new Error('Network response was not ok');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error uploading website:', error);
+    throw error;
+  }
+};
 
 
 /**

@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react';
-import { fetchTextSplittersNames, uploadFile } from '../../API/api';
+import { fetchTextSplittersNames, uploadFile, uploadWebsite } from '../../API/api';
 
 interface KnowledgeAdditionProps {
   onUploadSuccess: (message: string) => void; // Callback for successful upload
   onUploadError: (error: string) => void; // Callback for upload error
+}
+
+interface WebsiteUploadDetails {
+  websiteUrl: string;
+  depth: number;
+  maxLinks: number;
 }
 
 const KnowledgeAddition: React.FC<KnowledgeAdditionProps> = ({
@@ -18,8 +24,17 @@ const KnowledgeAddition: React.FC<KnowledgeAdditionProps> = ({
     number_of_chunks: '',
   });
   const [context, setContext]= useState<string>('');
+  const [uploadType, setUploadType] = useState<'file' | 'url'>('file');
+
   const [file, setFile] = useState<File | null>(null);
   const [filePath, setFilePath] = useState<string | null>(null); // Added state for file path
+
+  const [websiteUploadDetails, setWebsiteUploadDetails] = useState<WebsiteUploadDetails>({
+    websiteUrl: '',
+    depth: 2,
+    maxLinks: 50,
+  });
+
   const [isUploading, setIsUploading] = useState<boolean>(false); // Added state for upload progress
 
 
@@ -48,22 +63,39 @@ const KnowledgeAddition: React.FC<KnowledgeAdditionProps> = ({
   };
 
   const handleUpload = async () => {
-    console.log("test")
-    if (!file) return;
-    setIsUploading(true); // Indicate upload is starting
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('splitter', selectedTextSplitter !== 'None' ? selectedTextSplitter : '');
-    formData.append('context', context);
-    formData.append('splitter_args', JSON.stringify(splitterArgs));
+    setIsUploading(true);
 
     try {
-      await uploadFile(formData);
-      onUploadSuccess('Upload successful!');
+      const formData = new FormData();
+      if (uploadType === 'file') {
+        if (!file) throw new Error('No file selected');
+        formData.append('file', file);
+      } else {
+        const { websiteUrl, depth, maxLinks } = websiteUploadDetails;
+        if (!websiteUrl) throw new Error('Website URL is required');
+        formData.append('website_url', websiteUrl);
+        formData.append('depth', depth.toString());
+        formData.append('max_links', maxLinks.toString());
+      }
+
+      formData.append('splitter', selectedTextSplitter !== 'None' ? selectedTextSplitter : '');
+      formData.append('context', context);
+      formData.append('splitter_args', JSON.stringify(splitterArgs));
+
+      let apiResponse;
+      if (uploadType === 'file') {
+        apiResponse = await uploadFile(formData);
+      } else {
+        apiResponse = await uploadWebsite(formData); // Ensure this function is implemented and imported
+      }
+      const responseMessage = apiResponse.message;
+
+      onUploadSuccess(responseMessage); // Call the success callback with the API response message
     } catch (error) {
-      onUploadError('Error uploading file');
+      // Assuming error is an instance of Error
+      onUploadError(error instanceof Error ? error.message : 'Error uploading');
     } finally {
-      setIsUploading(false); // Reset upload state regardless of outcome
+      setIsUploading(false);
     }
   };
 
@@ -76,6 +108,12 @@ const KnowledgeAddition: React.FC<KnowledgeAdditionProps> = ({
     setContext(event.target.value); // Update the context state with the new value
   };
 
+  const handleWebsiteDetailChange = (key: keyof WebsiteUploadDetails, value: string | number) => {
+    setWebsiteUploadDetails(prevDetails => ({
+      ...prevDetails,
+      [key]: value,
+    }));
+  };
   
   const renderSplitterArgsInputs = () => {
     switch (selectedTextSplitter) {
@@ -133,24 +171,60 @@ const KnowledgeAddition: React.FC<KnowledgeAdditionProps> = ({
           onChange={handleContextChange}
           placeholder="Additional context"
           className="additional-context-input"
-          // Other necessary props
         />
         {renderSplitterArgsInputs()}
-        <input
-          type="file"
-          id="fileInput"
-          onChange={handleFileChange}
-          style={{ display: 'none' }} // Hide the default file input
-        />
-        <label htmlFor="fileInput" className="file-input-label">
-          <span className="file-input-text">{filePath || "Choose File"}</span>
-        </label>
-        <button onClick={handleUpload} disabled={!file || isUploading} className="upload-btn">
-          {isUploading ? 'Uploading...' : 'Upload File'}
-        </button>
+        <select
+          value={uploadType}
+          onChange={(e) => setUploadType(e.target.value as 'file' | 'url')}
+          className="upload-type-selector"
+        >
+          <option value="file">File</option>
+          <option value="url">URL</option>
+        </select>
+        {uploadType === 'file' && (
+        <>
+          <input
+            type="file"
+            id="fileInput"
+            onChange={handleFileChange}
+            style={{ display: 'none' }}
+          />
+          <label htmlFor="fileInput" className="file-input-label">
+            <span className="file-input-text">{filePath || "Choose File"}</span>
+          </label>
+          <button onClick={handleUpload} disabled={!file || isUploading} className="upload-btn">
+            {isUploading ? 'Uploading...' : 'Upload File'}
+          </button>
+        </>
+        )}
+        {uploadType === 'url' && (
+        <>
+          <input
+            type="text"
+            placeholder="Website URL"
+            value={websiteUploadDetails.websiteUrl}
+            onChange={(e) => handleWebsiteDetailChange('websiteUrl', e.target.value)}
+          />
+          <input
+            type="number"
+            placeholder="Depth"
+            value={websiteUploadDetails.depth}
+            onChange={(e) => handleWebsiteDetailChange('depth', parseInt(e.target.value))}
+          />
+          <input
+            type="number"
+            placeholder="Max Links"
+            value={websiteUploadDetails.maxLinks}
+            onChange={(e) => handleWebsiteDetailChange('maxLinks', parseInt(e.target.value))}
+          />
+          <button onClick={handleUpload} disabled={!websiteUploadDetails.websiteUrl || isUploading} className="upload-btn">
+            {isUploading ? 'Uploading...' : 'Upload Website'}
+          </button>
+        </>
+      )}
       </div>
     </div>
   );
 };
 
-export default KnowledgeAddition;
+export default KnowledgeAddition

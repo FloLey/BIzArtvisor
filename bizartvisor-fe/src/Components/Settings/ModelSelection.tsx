@@ -6,10 +6,12 @@ interface ModelSelectionProps {
   models: string[];
   onModelChange: (model: string) => void;
   useRAG: boolean
-  handleCheckboxChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  handleRagCheckbox: (event: React.ChangeEvent<HTMLInputElement>) => void;
+  useNewsTool: boolean
+  handleNewsToolCheckBox: (event: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ModelSelection: React.FC<ModelSelectionProps> = ({ selectedModel, models, onModelChange, useRAG, handleCheckboxChange }) => {
+const ModelSelection: React.FC<ModelSelectionProps> = ({ selectedModel, models, onModelChange, useRAG, handleRagCheckbox, useNewsTool, handleNewsToolCheckBox }) => {
   return (
     <div className="section">
       <div className="section-header">Model</div>
@@ -19,15 +21,24 @@ const ModelSelection: React.FC<ModelSelectionProps> = ({ selectedModel, models, 
             <option key={model} value={model}>{model}</option>
           ))}
         </select>
-        <div className="rag-checkbox">
+        <div className="checkbox">
           <input
             type="checkbox"
             id="useRagCheckbox"
             checked={useRAG}
-            onChange={handleCheckboxChange}
+            onChange={handleRagCheckbox}
           />
           <label htmlFor="useRagCheckbox">Use RAG</label>
-        </div>
+          </div>
+          <div className="checkbox">
+          <input
+            type="checkbox"
+            id="useNewsTool"
+            checked={useNewsTool}
+            onChange={handleNewsToolCheckBox}
+          />
+          <label htmlFor="useNewsTool">Use News tool</label>
+          </div>
       </div>
     </div>
   );

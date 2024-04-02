@@ -12,3 +12,9 @@ qdrant_client==1.8.0
 llama_index==0.10.20
 llama-index-embeddings-huggingface==0.1.4
 langchain==0.1.13
+requests~=2.31.0
+bs4~=0.0.2
+beautifulsoup4~=4.12.3
+exa_py==1.0.9
+duckduckgo_search==5.2.2
+git+https://github.com/FlagOpen/FlagEmbedding.git@main
