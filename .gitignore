@@ -6,3 +6,4 @@ server/__pycache__/*
 .env
 server/qdrant_storage/*
 server/qdrant_storage
+qdrant_storage/*
